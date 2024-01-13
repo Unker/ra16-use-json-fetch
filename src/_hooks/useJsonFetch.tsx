@@ -6,7 +6,7 @@ interface FetchOptions {
   body?: BodyInit;
 }
 
-type UseJsonFetchResult = [any, boolean, Error | null];
+type UseJsonFetchResult = [any, boolean, string | null];
 
 const useJsonFetch = (
   url: string,
@@ -14,23 +14,39 @@ const useJsonFetch = (
 ): UseJsonFetchResult => {
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<Error | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+
     const fetchData = async () => {
       try {
         const response = await fetch(url, opts);
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+
         const jsonData = await response.json();
         setData(jsonData);
+
       } catch (err: any) {
-        setError(err);
+        let errorMessage = 'Unknown error';
+
+        if (err.message.includes('JSON')) {
+          errorMessage = 'Error parsing response: Response is not in JSON format';
+        } else {
+          errorMessage = err.message;
+        }
+
+        setError(errorMessage);
       } finally {
         setLoading(false);
       }
     };
 
     fetchData();
-  }, [url, opts]);
+
+  }, []);
 
   return [data, loading, error];
 };
