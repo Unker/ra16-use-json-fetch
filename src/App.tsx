@@ -1,4 +1,3 @@
-import { useEffect } from 'react';
 import useJsonFetch from './_hooks/useJsonFetch'
 import './App.css'
 
