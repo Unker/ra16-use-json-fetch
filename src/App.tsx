@@ -1,34 +1,42 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
+import useJsonFetch from './_hooks/useJsonFetch'
 import './App.css'
 
-function App() {
-  const [count, setCount] = useState(0)
+
+interface ComponentProps {
+  url: string;
+  title: string;
+}
+
+const DataComponent: React.FC<ComponentProps> = ({ url, title }) => {
+  const [data, loading, error] = useJsonFetch(url, {});
+
+  if (error) return <p>Error: {error.message}</p>;
 
   return (
-    <>
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
+    <div style={{ border: '1px solid', margin: "3px" }}>
+      <h2>{title}</h2>
+
+      {loading && <div>Loading...</div>}
+      
+      {!loading && (
+        <>
+          <pre style={{ textAlign: "left" }}>
+            {JSON.stringify(data, null, 2)}
+          </pre>
+        </>
+      )}
+    </div>
+  );
+};
+
+function App() {
+
+  return (
+    <div style={{ display: 'flex' }}>
+      <DataComponent url="http://localhost:7070/data" title="Data Component"/>
+      {/* <DataComponent url="http://localhost:7070/error" title="Error Component"/> */}
+      <DataComponent url="http://localhost:7070/loading" title="Loading Component"/>
+    </div>
   )
 }
 
